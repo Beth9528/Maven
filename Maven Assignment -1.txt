@@ -1,0 +1,112 @@
+
+package jsonparser;
+
+import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.ClientResponse;
+import com.sun.jersey.api.client.WebResource;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+public class Student {
+    private String first_name;
+    private String gender;
+    private String email;
+    private double gpa;
+
+    public Student(String first_name, String gender, String email, double gpa) {
+        this.first_name = first_name;
+        this.gender = gender;
+        this.email = email;
+        this.gpa = gpa;
+    }
+
+    public String getFirst_name() {
+        return first_name;
+    }
+
+    public void setFirst_name(String first_name) {
+        this.first_name = first_name;
+    }
+
+    public String getGender() {
+        return gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public double getGpa() {
+        return gpa;
+    }
+
+    public void setGpa(double gpa) {
+        this.gpa = gpa;
+    }
+
+    
+}
+
+public class JsonParser {
+
+    public static List<Student> parseJSOn(String url) throws ParseException {
+        List<Student> student = new ArrayList();
+        Client client = Client.create();
+        WebResource webResource = client.resource(url);
+
+        ClientResponse clientResponse = webResource.accept("application/json").get(ClientResponse.class);
+        if (clientResponse.getStatus() != 200) {
+            throw new RuntimeException("Failed"+ clientResponse.toString());
+        }
+
+        JSONArray jsonArray = (JSONArray) new  JSONParser().parse(clientResponse.getEntity(String.class));
+
+        Iterator<Object> it = jsonArray.iterator();
+
+        String firstName;
+        String gender;
+        String email;
+        double gpa;
+        while (it.hasNext()){
+            JSONObject jsonObject = (JSONObject)it.next();
+            firstName = (String)jsonObject.get("first_name");
+            gender = (String)jsonObject.get("gender");
+            email = (String)jsonObject.get("email");
+            gpa = Double.parseDouble((String)jsonObject.get("gpa"));
+            studentList.add(new Student(firstName,gender,email,gpa));
+        }
+
+        return studentList;
+    }
+
+    public static void main(String[] args) throws ParseException {
+
+        List<Student> student = parseJSOn("https://hccs-advancejava.s3.amazonaws.com/student.json");
+        for ( Student student: student){
+            System.out.println(student.getFirst_name());
+		System.out.println(student.getGender());
+		System.out.println(student.getEmail());
+		System.out.println(student.getGpa());
+		
+        }
+
+ 		
+		Search search = new Search();
+		search.readfirst_name();
+		
+	}
+}
